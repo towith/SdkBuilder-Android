@@ -1,0 +1,79 @@
+apply plugin: 'com.android.application'
+
+android {
+    packagingOptions {
+        pickFirst  'META-INF/LICENSE'
+    }
+    compileSdkVersion 25
+    buildToolsVersion "27.0.3"
+    defaultConfig {
+        applicationId "com.willbe.builder"
+        minSdkVersion 15
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled true
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    useLibrary 'org.apache.http.legacy'
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    dexOptions
+            {
+                javaMaxHeapSize "4g" // set it to 4g will bring unable to start JavaVirtualMachine
+                preDexLibraries = false
+            }
+    task nativeLibsToJar(type: Zip, description: 'create a jar archive of the native libs') {
+        destinationDir file("$buildDir/native-libs")
+        baseName 'native-libs'
+        extension 'jar'
+        from fileTree(dir: 'libs', include: '**/*.so')
+        into 'lib/'
+    }
+
+    tasks.withType(JavaCompile ) {
+        compileTask -> compileTask.dependsOn(nativeLibsToJar)
+    }
+
+}
+
+repositories {
+    flatDir {
+        dirs 'D:\\my\\lab\\javaide\\javacompiler'
+    }
+}
+
+
+
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.so'])
+    compile fileTree(dir: "$buildDir/native-libs", include: 'native-libs.jar')
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support:appcompat-v7:25.+'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.android.support:design:25.+'
+    compile ('com.google.guava:guava:22.0-android'){
+        exclude group: 'com.google.code.findbugs'
+    }
+    compile files('D:\\my\\lab\\javaide\\javacompiler\\libs/bcpg-jdk15on-1.56.0.0.jar')
+    compile files('D:\\my\\lab\\javaide\\javacompiler\\libs/bcpkix-jdk15on-1.56.0.0.jar')
+    compile files('D:\\my\\lab\\javaide\\javacompiler\\libs/core-1.56.0.0.jar')
+    compile files('D:\\my\\lab\\javaide\\javacompiler\\libs/log4j-1.2.17.jar')
+    compile files('D:\\my\\lab\\javaide\\javacompiler\\libs/prov-1.56.0.0.jar')
+    compile files('D:\\my\\lab\\javaide\\javacompiler\\libs/android-sun-jarsign-support-1.1.jar')
+    compile "com.android.support:multidex:1.0.0"
+    compile ('org.apache.httpcomponents:httpcore:4.0.1')
+    compile 'net.sf.kxml:kxml2:2.3.0'
+    compile 'commons-io:commons-io:2.6'
+    compile 'org.apache.commons:commons-compress:1.16.1'
+//    compile name: 'android-sun-jarsign-support-1.1'
+    testCompile 'junit:junit:4.12'
+
+}
