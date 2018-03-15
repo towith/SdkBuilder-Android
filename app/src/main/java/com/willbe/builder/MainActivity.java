@@ -43,8 +43,9 @@ public class MainActivity extends AppCompatActivity {
         // prepare
         FileUtil.copyFileOrDir("templates");
 
+//        File filesDir = MyApp.getAppContext().getFilesDir();
         CompileHelper.buildApk(getApplicationContext(),
-                new AndroidProjectFolder(new File(MyApp.getAppContext().getFilesDir(), "template"),
+                new AndroidProjectFolder(new File(FileUtil.APP_DATA_PATH, "templates"),
                         "",
                         "",
                         ""),

@@ -11,6 +11,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class FileUtil {
+    public static final String APP_DATA_PATH = "/data/data/" + MyApp.getAppContext().getPackageName();
+
     public static void copyFileOrDir(String path) {
         AssetManager assetManager = MyApp.getAppContext().getAssets();
         String assets[] = null;
@@ -20,7 +22,7 @@ public class FileUtil {
                 copyFile(path, assetManager);
             }
             else {
-                String fullPath = "/data/data/" + MyApp.getAppContext().getPackageName() + "/" + path;
+                String fullPath = APP_DATA_PATH + "/" + path;
                 File dir = new File(fullPath);
                 if (!dir.exists())
                     dir.mkdir();
@@ -39,7 +41,7 @@ public class FileUtil {
         OutputStream out = null;
         try {
             in = assetManager.open(filename);
-            String newFileName = "/data/data/" + MyApp.getAppContext().getPackageName() + "/" + filename;
+            String newFileName = APP_DATA_PATH + "/" + filename;
             out = new FileOutputStream(newFileName);
 
             byte[] buffer = new byte[1024];
