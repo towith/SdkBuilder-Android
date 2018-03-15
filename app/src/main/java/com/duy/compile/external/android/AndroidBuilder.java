@@ -2,7 +2,6 @@ package com.duy.compile.external.android;
 
 import android.content.Context;
 import android.util.Log;
-
 import com.android.annotations.NonNull;
 import com.android.sdklib.build.ApkBuilderMain;
 import com.duy.compile.external.CompileHelper;
@@ -10,15 +9,13 @@ import com.duy.ide.file.FileManager;
 import com.duy.project.file.android.AndroidProjectFolder;
 import com.duy.project.file.android.KeyStore;
 import com.sun.tools.javac.main.Main;
-
-import java.io.File;
-import java.util.Arrays;
-
-import javax.tools.DiagnosticCollector;
-
 import kellinwood.security.zipsigner.ProgressEvent;
 import kellinwood.security.zipsigner.ZipSigner;
 import kellinwood.security.zipsigner.optional.CustomKeySigner;
+
+import javax.tools.DiagnosticCollector;
+import java.io.File;
+import java.util.Arrays;
 
 import static com.duy.compile.external.android.util.S.dirLibs;
 
@@ -26,22 +23,9 @@ import static com.duy.compile.external.android.util.S.dirLibs;
 public class AndroidBuilder {
     private static final String TAG = "BuildTask";
 
-    private static void buildApk(AndroidProjectFolder projectFile) throws Exception {
-        String[] args = {
-                projectFile.getApkUnsigned().getPath(),
-                "-v",
-                "-u",
-                "-z", projectFile.getResourceFile().getPath(),
-                "-f", projectFile.getDexedClassesFile().getPath()
-        };
-        Log.d(TAG, "buildApk args = " + Arrays.toString(args));
-        ApkBuilderMain.main(args);
-    }
-
     public static void build(Context context, AndroidProjectFolder projectFile,
                              @NonNull DiagnosticCollector diagnosticCollector) throws Exception {
         AndroidBuilder.extractLibrary(projectFile);
-
         //create R.java
         System.out.println("Run aidl");
         AndroidBuilder.runAidl(projectFile);
@@ -118,7 +102,8 @@ public class AndroidBuilder {
                 if (lib.isFile() && false) {
                     if (lib.getPath().endsWith(".jar")) {
                         command.append(" -I ").append(lib.getPath());
-                    } else if (lib.getPath().endsWith(".aar")) {
+                    }
+                    else if (lib.getPath().endsWith(".aar")) {
                         command.append(" -I ").append(lib.getPath()).append(File.separator).append("res");
                     }
                 }
@@ -130,6 +115,18 @@ public class AndroidBuilder {
             throw new Exception("AAPT exit(" + exitCode + ")");
         }
 
+    }
+
+    private static void buildApk(AndroidProjectFolder projectFile) throws Exception {
+        String[] args = {
+                projectFile.getApkUnsigned().getPath(),
+                "-v",
+                "-u",
+                "-z", projectFile.getResourceFile().getPath(),
+                "-f", projectFile.getDexedClassesFile().getPath()
+        };
+        Log.d(TAG, "buildApk args = " + Arrays.toString(args));
+        ApkBuilderMain.main(args);
     }
 
     private static void zipSign(AndroidProjectFolder projectFile) throws Exception {
