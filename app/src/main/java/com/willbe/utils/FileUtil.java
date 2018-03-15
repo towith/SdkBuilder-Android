@@ -60,4 +60,28 @@ public class FileUtil {
 
     }
 
+
+    public static void copyFileToDest(String fileName, String newFileName) {
+        AssetManager assetManager = MyApp.getAppContext().getAssets();
+        InputStream in = null;
+        OutputStream out = null;
+        try {
+            in = assetManager.open(fileName);
+            out = new FileOutputStream(newFileName);
+
+            byte[] buffer = new byte[1024];
+            int read;
+            while ((read = in.read(buffer)) != -1) {
+                out.write(buffer, 0, read);
+            }
+            in.close();
+            in = null;
+            out.flush();
+            out.close();
+            out = null;
+        } catch (Exception e) {
+            Log.e("tag", e.getMessage());
+        }
+    }
+
 }

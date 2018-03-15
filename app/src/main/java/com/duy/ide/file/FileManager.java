@@ -17,7 +17,6 @@
 package com.duy.ide.file;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
@@ -41,7 +40,6 @@ import java.io.OutputStreamWriter;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Set;
 
 /**
  * File Manager
@@ -51,7 +49,7 @@ public class FileManager {
     public static final String EXTERNAL_DIR_SRC;
     public static final String EXTERNAL_DIR;
     private static final String ANDROID_CLASSPATH = "android.jar";
-    private static final String SDK_DIR = "android-21";
+    public static final String SDK_DIR = "android-21";
 
     static {
         EXTERNAL_DIR_SRC = Environment.getExternalStorageDirectory() + "/JavaNIDE/src/";

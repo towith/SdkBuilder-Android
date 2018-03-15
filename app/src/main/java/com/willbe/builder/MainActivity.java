@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import com.duy.compile.external.CompileHelper;
+import com.duy.ide.file.FileManager;
 import com.duy.project.file.android.AndroidProjectFolder;
 import com.willbe.utils.FileUtil;
 
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private void doBuild() throws Exception {
         // prepare
         FileUtil.copyFileOrDir("templates");
+        FileUtil.copyFileToDest("android.jar",MyApp.getAppContext().getFilesDir()+File.separator + FileManager.SDK_DIR+File.separator+"android.jar");
 
 //        File filesDir = MyApp.getAppContext().getFilesDir();
         CompileHelper.buildApk(getApplicationContext(),
