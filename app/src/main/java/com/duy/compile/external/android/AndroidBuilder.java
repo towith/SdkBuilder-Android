@@ -80,13 +80,15 @@ public class AndroidBuilder {
 
         com.duy.aapt.Aapt aapt = new com.duy.aapt.Aapt();
         StringBuilder command = new StringBuilder("aapt p -f --auto-add-overlay"
-                //"-v" + //print info
+                + " -v"  //print info
+                + " -m"  // mk package dir
                 + " -M " + projectFile.getXmlManifest().getPath()  //manifest file
                 + " -F " + projectFile.getResourceFile().getPath()  //output resources.ap_
                 + " -I " + FileManager.getClasspathFile(context).getPath()  //include
                 + " -A " + projectFile.getDirAssets().getPath()  //input assets dir
                 + " -S " + projectFile.getDirRes().getPath()  //input resource dir
-                + " -J " + projectFile.getClassR().getParent());//parent file of R.java file
+                + " -J " + projectFile.getClassR().getParent() //parent file of R.java file
+                );
 
         //test
 //        File appcompatDir = new File(Environment.getExternalStorageDirectory(), ".JavaNIDE/appcompat-v7-21.0.0");
