@@ -56,9 +56,9 @@ public class AndroidProjectFolder extends JavaProjectFolder {
         resourceFile = new File(dirBuild, "resources.ap_");
         dexedClassesFile = new File(dirBuild, "classes.dex");
         keystore = new KeyStore(new File(dirProject, "keystore.jks"),
-                "android".toCharArray(),
-                "android",
-                "android".toCharArray());
+                "willbe".toCharArray(),
+                "willbe",
+                "willbe".toCharArray());
     }
 
     @Nullable
