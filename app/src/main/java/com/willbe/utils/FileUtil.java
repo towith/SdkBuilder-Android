@@ -5,6 +5,7 @@ import android.util.Log;
 import com.willbe.builder.MyApp;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,13 +62,36 @@ public class FileUtil {
     }
 
 
-    public static void copyFileToDest(String fileName, String newFileName) {
+    public static void copyAssetFileToDest(String fileName, String newFileName) {
         AssetManager assetManager = MyApp.getAppContext().getAssets();
         InputStream in = null;
         OutputStream out = null;
         try {
             in = assetManager.open(fileName);
             out = new FileOutputStream(newFileName);
+
+            byte[] buffer = new byte[1024];
+            int read;
+            while ((read = in.read(buffer)) != -1) {
+                out.write(buffer, 0, read);
+            }
+            in.close();
+            in = null;
+            out.flush();
+            out.close();
+            out = null;
+        } catch (Exception e) {
+            Log.e("tag", e.getMessage());
+        }
+    }
+
+
+    public static void copyFile(File inFile, File outFile) {
+        InputStream in = null;
+        OutputStream out = null;
+        try {
+            in = new FileInputStream(inFile);
+            out = new FileOutputStream(outFile);
 
             byte[] buffer = new byte[1024];
             int read;

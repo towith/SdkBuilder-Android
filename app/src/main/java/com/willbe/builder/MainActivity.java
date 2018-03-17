@@ -1,5 +1,7 @@
 package com.willbe.builder;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -43,15 +45,23 @@ public class MainActivity extends AppCompatActivity {
     private void doBuild() throws Exception {
         // prepare
         FileUtil.copyFileOrDir("templates");
-        FileUtil.copyFileToDest("android.jar",MyApp.getAppContext().getFilesDir()+File.separator + FileManager.SDK_DIR+File.separator+"android.jar");
+        FileUtil.copyAssetFileToDest("android.jar",
+                MyApp.getAppContext()
+                        .getFilesDir() + File.separator + FileManager.SDK_DIR + File.separator + "android.jar");
 
 //        File filesDir = MyApp.getAppContext().getFilesDir();
-        CompileHelper.buildApk(getApplicationContext(),
+        File buildApk = CompileHelper.buildApk(getApplicationContext(),
                 new AndroidProjectFolder(new File(FileUtil.APP_DATA_PATH, "templates"),
                         "",
                         "",
                         ""),
                 new DiagnosticCollector());
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(Uri.fromFile(buildApk),
+                "application/vnd.android.package-archive");
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 
     @Override

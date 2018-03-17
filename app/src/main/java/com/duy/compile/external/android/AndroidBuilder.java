@@ -56,7 +56,7 @@ public class AndroidBuilder {
         AndroidBuilder.zipAlign();
 
         System.out.println("Publish apk");
-        AndroidBuilder.publishApk();
+        AndroidBuilder.publishApk(projectFile);
     }
 
     private static void extractLibrary(AndroidProjectFolder projectFolder) {
@@ -82,13 +82,15 @@ public class AndroidBuilder {
         StringBuilder command = new StringBuilder("aapt p -f --auto-add-overlay"
                 + " -v"  //print info
                 + " -m"  // mk package dir
+                + " -0 apk"  // ignore apk
+//                + " --extra-packages " + new File(projectFile.getRootDir(), "libs").getPath()  //
                 + " -M " + projectFile.getXmlManifest().getPath()  //manifest file
                 + " -F " + projectFile.getResourceFile().getPath()  //output resources.ap_
                 + " -I " + FileManager.getClasspathFile(context).getPath()  //include
                 + " -A " + projectFile.getDirAssets().getPath()  //input assets dir
                 + " -S " + projectFile.getDirRes().getPath()  //input resource dir
                 + " -J " + projectFile.getClassR().getParent() //parent file of R.java file
-                );
+        );
 
         //test
 //        File appcompatDir = new File(Environment.getExternalStorageDirectory(), ".JavaNIDE/appcompat-v7-21.0.0");
@@ -163,7 +165,7 @@ public class AndroidBuilder {
 //         TODO make zipalign.so
     }
 
-    private static void publishApk() throws Exception {
+    private static void publishApk(AndroidProjectFolder projectFile) throws Exception {
 //        if (projectFile.apkRedistributable.exists()) {
 //            projectFile.apkRedistributable.delete();
 //        }

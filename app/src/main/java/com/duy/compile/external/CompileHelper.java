@@ -1,10 +1,10 @@
 package com.duy.compile.external;
 
 import android.content.Context;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
-
 import com.duy.compile.external.android.AndroidBuilder;
 import com.duy.compile.external.android.util.Util;
 import com.duy.compile.external.dex.DexTool;
@@ -18,15 +18,15 @@ import com.duy.ide.file.FileManager;
 import com.duy.project.file.android.AndroidProjectFolder;
 import com.duy.project.file.java.JavaProjectFolder;
 import com.sun.tools.javac.main.Main;
+import com.willbe.utils.FileUtil;
 
+import javax.tools.DiagnosticCollector;
+import javax.tools.DiagnosticListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-
-import javax.tools.DiagnosticCollector;
-import javax.tools.DiagnosticListener;
 
 /**
  * Created by duy on 18/07/2017.
@@ -47,11 +47,9 @@ public class CompileHelper {
         return projectFile.getOutJarArchive();
     }
 
-    public static int compileJava(Context context, JavaProjectFolder pf) {
-        return compileJava(context, pf, null);
-    }
-
-    public static int compileJava(Context context, JavaProjectFolder projectFile, @Nullable DiagnosticListener listener) {
+    public static int compileJava(Context context,
+                                  JavaProjectFolder projectFile,
+                                  @Nullable DiagnosticListener listener) {
         try {
 
             String[] args = new String[]{
@@ -71,10 +69,36 @@ public class CompileHelper {
         return Main.EXIT_ERROR;
     }
 
-    public static void compileAndRun(Context context, InputStream in, File tempDir, JavaProjectFolder projectFile) throws Exception {
+    public static void compileAndRun(Context context,
+                                     InputStream in,
+                                     File tempDir,
+                                     JavaProjectFolder projectFile) throws Exception {
         compileJava(context, projectFile);
         convertToDexFormat(context, projectFile);
         executeDex(context, in, projectFile.getDexedClassesFile(), tempDir, projectFile.getMainClass().getName());
+    }
+
+    public static int compileJava(Context context, JavaProjectFolder pf) {
+        return compileJava(context, pf, null);
+    }
+
+    public static void convertToDexFormat(Context context, @NonNull JavaProjectFolder projectFile) throws Exception {
+        Log.d(TAG, "convertToDexFormat() called with: projectFile = [" + projectFile + "]");
+        dexLibs(projectFile);
+        dexBuildClasses(projectFile);
+        dexMerge(projectFile);
+    }
+
+    public static void executeDex(Context context,
+                                  InputStream in,
+                                  @NonNull File outDex,
+                                  @NonNull File tempDir,
+                                  String mainClass)
+            throws FileNotFoundException {
+        FileManager.ensureFileExist(outDex);
+
+        String[] args = new String[]{"-jar", outDex.getPath(), mainClass};
+        Java.run(args, tempDir.getPath(), in);
     }
 
     public static void dexLibs(@NonNull JavaProjectFolder projectFile) throws Exception {
@@ -92,7 +116,8 @@ public class CompileHelper {
                     // compare hash of jar contents to name of dexed version
                     String md5 = Util.getMD5Checksum(jarLib);
 
-                    File dexLib = new File(projectFile.getDirDexedLibs(), jarLib.getName().replace(".jar", "-" + md5 + ".dex"));
+                    File dexLib = new File(projectFile.getDirDexedLibs(),
+                            jarLib.getName().replace(".jar", "-" + md5 + ".dex"));
                     if (dexLib.exists()) {
                         continue;
                     }
@@ -117,7 +142,7 @@ public class CompileHelper {
 
     public static File dexMerge(@NonNull JavaProjectFolder projectFile) throws IOException {
         Log.d(TAG, "dexMerge() called with: projectFile = [" + projectFile + "]");
-            FileManager.ensureFileExist(projectFile.getDexedClassesFile());
+        FileManager.ensureFileExist(projectFile.getDexedClassesFile());
 
         if (projectFile.getDirDexedLibs().exists()) {
             File[] files = projectFile.getDirDexedLibs().listFiles();
@@ -136,25 +161,13 @@ public class CompileHelper {
         return projectFile.getDexedClassesFile();
     }
 
-    public static void executeDex(Context context, InputStream in, @NonNull File outDex, @NonNull File tempDir, String mainClass)
-            throws FileNotFoundException {
-        FileManager.ensureFileExist(outDex);
-
-        String[] args = new String[]{"-jar", outDex.getPath(), mainClass};
-        Java.run(args, tempDir.getPath(), in);
-    }
-
-    public static void convertToDexFormat(Context context, @NonNull JavaProjectFolder projectFile) throws Exception {
-        Log.d(TAG, "convertToDexFormat() called with: projectFile = [" + projectFile + "]");
-        dexLibs(projectFile);
-        dexBuildClasses(projectFile);
-        dexMerge(projectFile);
-    }
-
     public static File buildApk(Context context, AndroidProjectFolder projectFile,
                                 DiagnosticCollector diagnosticCollector) throws Exception {
         AndroidBuilder.build(context, projectFile, diagnosticCollector);
-        return projectFile.getApkUnaligned();
+        File apkUnaligned = projectFile.getApkUnaligned();
+        File outFile = new File(Environment.getExternalStorageDirectory() + "/download/" + apkUnaligned.getName());
+        FileUtil.copyFile(apkUnaligned, outFile);
+        return outFile;
     }
 
     public class Action {

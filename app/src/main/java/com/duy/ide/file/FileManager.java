@@ -50,6 +50,7 @@ public class FileManager {
     public static final String EXTERNAL_DIR;
     private static final String ANDROID_CLASSPATH = "android.jar";
     public static final String SDK_DIR = "android-21";
+//    public static final String SDK_DIR = "android-21";
 
     static {
         EXTERNAL_DIR_SRC = Environment.getExternalStorageDirectory() + "/JavaNIDE/src/";
