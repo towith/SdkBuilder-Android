@@ -34,9 +34,7 @@ import com.example.android.batchstepsensor.cardstream.StreamRetentionFragment;
 import com.example.android.batchstepsensor.cardstream.CardLayout;
 import com.example.android.batchstepsensor.cardstream.CardActionButton;
 import com.example.android.batchstepsensor.cardstream.Card;
-import com.example.android.batchstepsensor.cardstream.CardStreamAnimator;
 import com.example.android.batchstepsensor.cardstream.CardStreamState;
-import com.example.android.batchstepsensor.cardstream.DefaultCardStreamAnimator;
 
 public class MainActivity extends SampleActivityBase implements CardStream {
     public static final String TAG = "MainActivity";
