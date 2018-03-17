@@ -41,7 +41,6 @@ public class MainActivity extends SampleActivityBase implements CardStream {
     public static final String FRAGTAG = "BatchStepSensorFragment";
 
     private CardStreamFragment mCardStreamFragment;
-    private CardActionButton cardActionButton=new CardActionButton();
 
     private StreamRetentionFragment mRetentionFragment;
     private static final String RETENTION_TAG = "retention";
