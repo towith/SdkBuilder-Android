@@ -2,15 +2,13 @@ package com.duy.compile;
 
 import android.content.Context;
 import android.os.AsyncTask;
-
 import com.duy.compile.external.CompileHelper;
 import com.duy.project.file.android.AndroidProjectFolder;
 
-import java.io.File;
-import java.util.List;
-
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
+import java.io.File;
+import java.util.List;
 
 public class BuildApkTask extends AsyncTask<AndroidProjectFolder, Object, File> {
     private static final String TAG = "BuildApkTask";
@@ -26,13 +24,7 @@ public class BuildApkTask extends AsyncTask<AndroidProjectFolder, Object, File> 
     }
 
     @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-        listener.onStart();
-    }
-
-    @Override
-    protected File doInBackground(AndroidProjectFolder... params) {
+    public File doInBackground(AndroidProjectFolder... params) {
         AndroidProjectFolder projectFile = params[0];
         if (params[0] == null) return null;
 
@@ -46,13 +38,19 @@ public class BuildApkTask extends AsyncTask<AndroidProjectFolder, Object, File> 
         return null;
     }
 
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        listener.onStart();
+    }
 
     @Override
     protected void onPostExecute(final File result) {
         super.onPostExecute(result);
         if (result == null) {
             listener.onError(error, mDiagnosticCollector.getDiagnostics());
-        } else {
+        }
+        else {
             listener.onComplete(result, mDiagnosticCollector.getDiagnostics());
         }
     }

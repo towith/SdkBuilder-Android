@@ -1,7 +1,12 @@
 package com.duy.compile.external.android;
 
+import android.app.Activity;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
+import android.view.View;
+import android.widget.ProgressBar;
 import com.android.annotations.NonNull;
 import com.android.sdklib.build.ApkBuilderMain;
 import com.duy.compile.external.CompileHelper;
@@ -9,6 +14,8 @@ import com.duy.ide.file.FileManager;
 import com.duy.project.file.android.AndroidProjectFolder;
 import com.duy.project.file.android.KeyStore;
 import com.sun.tools.javac.main.Main;
+import com.willbe.builder.MainActivity;
+import com.willbe.builder.R;
 import kellinwood.security.zipsigner.ProgressEvent;
 import kellinwood.security.zipsigner.ZipSigner;
 import kellinwood.security.zipsigner.optional.CustomKeySigner;
@@ -27,13 +34,23 @@ public class AndroidBuilder {
                              @NonNull DiagnosticCollector diagnosticCollector) throws Exception {
         AndroidBuilder.extractLibrary(projectFile);
         //create R.java
-        System.out.println("Run aidl");
+        Handler progressHandler = ((MainActivity) context).progressHandler;
+
+        String msg0 = "Run aidl";
+        System.out.println(msg0);
+        spin(msg0, progressHandler);
+
+
         AndroidBuilder.runAidl(projectFile);
-        System.out.println("Run aapt");
+        String msg1 = "Run aapt";
+        System.out.println(msg1);
+        spin(msg1, progressHandler);
         AndroidBuilder.runAapt(context, projectFile);
 
         //compile java
-        System.out.println("Compile Java file");
+        String msg2 = "Compile Java file";
+        System.out.println(msg2);
+        spin(msg2, progressHandler);
         int status = CompileHelper.compileJava(context, projectFile, diagnosticCollector);
         System.gc();
         if (status != Main.EXIT_OK) {
@@ -42,21 +59,36 @@ public class AndroidBuilder {
         }
 
         //classes to dex
-        System.out.println("Convert classes to dex");
+        String msg3 = "Convert classes to dex";
+        System.out.println(msg3);
+        spin(msg3, progressHandler);
         CompileHelper.convertToDexFormat(context, projectFile);
 
         //zip apk
-        System.out.println("Build apk");
+        String msg4 = "Build apk";
+        System.out.println(msg4);
+        spin(msg4, progressHandler);
         AndroidBuilder.buildApk(projectFile);
 
-        System.out.println("Zip sign");
+        String msg5 = "Zip sign";
+        System.out.println(msg5);
+        spin(msg5, progressHandler);
         AndroidBuilder.zipSign(projectFile);
 
-        System.out.println("Zip align");
+        String msg6 = "Zip align";
+        System.out.println(msg6);
+        spin(msg6, progressHandler);
         AndroidBuilder.zipAlign();
 
-        System.out.println("Publish apk");
+        String msg7 = "Publish apk";
+        System.out.println(msg7);
+        spin(msg7, progressHandler);
         AndroidBuilder.publishApk(projectFile);
+        Activity activity = (Activity) context;
+        ProgressBar progressBar = (ProgressBar) activity.findViewById(R.id.progressBar);
+
+        progressBar.setVisibility(View.INVISIBLE);
+
     }
 
     private static void extractLibrary(AndroidProjectFolder projectFolder) {
@@ -67,6 +99,12 @@ public class AndroidBuilder {
                 }
             }
         }
+    }
+
+    private static void spin(String msg0, Handler progressHandler) {
+        Message msg = new Message();
+        msg.obj = msg0;
+        progressHandler.sendMessage(msg);
     }
 
     private static void runAidl(AndroidProjectFolder projectFile) throws Exception {
