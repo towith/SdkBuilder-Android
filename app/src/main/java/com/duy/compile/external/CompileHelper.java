@@ -53,7 +53,7 @@ public class CompileHelper {
         try {
 
             String[] args = new String[]{
-                    "-verbose",
+//                    "-verbose",
                     "-cp", projectFile.getJavaClassPath(context),
                     "-sourcepath", projectFile.getSourcePath(), //sourcepath
                     "-d", projectFile.getDirBuildClasses().getPath(), //output dir
@@ -163,7 +163,7 @@ public class CompileHelper {
 
     public static File buildApk(Context context, AndroidProjectFolder projectFile,
                                 DiagnosticCollector diagnosticCollector) throws Exception {
-        AndroidBuilder.build(context, projectFile, diagnosticCollector);
+        AndroidBuilder.Companion.build(context, projectFile, diagnosticCollector);
         File apkUnaligned = projectFile.getApkUnaligned();
         File outFile = new File(Environment.getExternalStorageDirectory() + "/download/" + apkUnaligned.getName());
         FileUtil.copyFile(apkUnaligned, outFile);
