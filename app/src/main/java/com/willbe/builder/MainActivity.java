@@ -25,27 +25,16 @@ import javax.tools.Diagnostic;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
 
-    public  Handler progressHandler = new Handler() {
+    public Handler progressHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             spin((String) msg.obj);
         }
     };
-
-
-    private  void spin(String msg0) {
-//        ActivityManager activityManager = (ActivityManager) MyApp.getAppContext().getSystemService(ACTIVITY_SERVICE);
-//        ComponentName topActivity = activityManager.getRunningTasks(1).get(0).topActivity;
-        ProgressBar progressBar = (ProgressBar) this.findViewById(R.id.progressBar);
-        progressBar.setVisibility(View.VISIBLE);
-        progressBar.setProgress(50);
-        TextView spinText = (TextView) this.findViewById(R.id.spinText);
-        spinText.setText(msg0);
-
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,29 +82,66 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        AsyncTask<AndroidProjectFolder, Object, File> asyncTask = buildApkTask.execute(new AndroidProjectFolder(new File(
-                FileUtil.APP_DATA_PATH,
-                "templates"),
+        final AsyncTask<AndroidProjectFolder, Object, File> asyncTask = buildApkTask.execute(new AndroidProjectFolder(
+                new File(
+                        FileUtil.APP_DATA_PATH,
+                        "templates"),
                 "",
                 "",
                 ""));
 
-        File buildApk = asyncTask.get();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                File buildApk = null;
+                try {
+                    while ((buildApk = asyncTask.get()) == null) {
+                        Thread.sleep(50);
+                    }
+                    ;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
 
-        if (Build.VERSION.SDK_INT >= 24) {
-            try {
-                Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
-                m.invoke(null);
-            } catch (Exception e) {
-                e.printStackTrace();
+                if (Build.VERSION.SDK_INT >= 24) {
+                    try {
+                        Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
+                        m.invoke(null);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                clearMsg();
+
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setDataAndType(Uri.fromFile(buildApk),
+                        "application/vnd.android.package-archive");
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
             }
-        }
+        }).start();
 
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setDataAndType(Uri.fromFile(buildApk),
-                "application/vnd.android.package-archive");
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
+    }
+
+    private void clearMsg() {
+        TextView textView = (TextView) this.findViewById(R.id.spinText);
+        textView.setText("");
+        ProgressBar progressBar = (ProgressBar) this.findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.INVISIBLE);
+    }
+
+    public void spin(String msg0) {
+//        ActivityManager activityManager = (ActivityManager) MyApp.getAppContext().getSystemService(ACTIVITY_SERVICE);
+//        ComponentName topActivity = activityManager.getRunningTasks(1).get(0).topActivity;
+        ProgressBar progressBar = (ProgressBar) this.findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.VISIBLE);
+        progressBar.setProgress(50);
+        TextView spinText = (TextView) this.findViewById(R.id.spinText);
+        spinText.setText(msg0);
+
     }
 
     @Override

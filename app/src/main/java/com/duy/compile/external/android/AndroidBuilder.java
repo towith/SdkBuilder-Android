@@ -38,19 +38,21 @@ public class AndroidBuilder {
 
         String msg0 = "Run aidl";
         System.out.println(msg0);
-        spin(msg0, progressHandler);
+        long t0 = System.currentTimeMillis();
+        spin(msg0, progressHandler, context);
 
 
         AndroidBuilder.runAidl(projectFile);
+        long t1 = System.currentTimeMillis();
         String msg1 = "Run aapt";
         System.out.println(msg1);
-        spin(msg1, progressHandler);
+        spin(msg1, progressHandler, context);
         AndroidBuilder.runAapt(context, projectFile);
 
         //compile java
         String msg2 = "Compile Java file";
         System.out.println(msg2);
-        spin(msg2, progressHandler);
+        spin(msg2, progressHandler, context);
         int status = CompileHelper.compileJava(context, projectFile, diagnosticCollector);
         System.gc();
         if (status != Main.EXIT_OK) {
@@ -61,28 +63,28 @@ public class AndroidBuilder {
         //classes to dex
         String msg3 = "Convert classes to dex";
         System.out.println(msg3);
-        spin(msg3, progressHandler);
+        spin(msg3, progressHandler, context);
         CompileHelper.convertToDexFormat(context, projectFile);
 
         //zip apk
         String msg4 = "Build apk";
         System.out.println(msg4);
-        spin(msg4, progressHandler);
+        spin(msg4, progressHandler, context);
         AndroidBuilder.buildApk(projectFile);
 
         String msg5 = "Zip sign";
         System.out.println(msg5);
-        spin(msg5, progressHandler);
+        spin(msg5, progressHandler, context);
         AndroidBuilder.zipSign(projectFile);
 
         String msg6 = "Zip align";
         System.out.println(msg6);
-        spin(msg6, progressHandler);
+        spin(msg6, progressHandler, context);
         AndroidBuilder.zipAlign();
 
         String msg7 = "Publish apk";
         System.out.println(msg7);
-        spin(msg7, progressHandler);
+        spin(msg7, progressHandler, context);
         AndroidBuilder.publishApk(projectFile);
         Activity activity = (Activity) context;
         ProgressBar progressBar = (ProgressBar) activity.findViewById(R.id.progressBar);
@@ -101,10 +103,12 @@ public class AndroidBuilder {
         }
     }
 
-    private static void spin(String msg0, Handler progressHandler) {
+    private static void spin(final String msg0, final Handler progressHandler, Context context) {
         Message msg = new Message();
         msg.obj = msg0;
         progressHandler.sendMessage(msg);
+//        MainActivity activity = (MainActivity) context;
+//        activity.spin(msg0);
     }
 
     private static void runAidl(AndroidProjectFolder projectFile) throws Exception {
