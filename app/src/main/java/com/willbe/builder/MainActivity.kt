@@ -77,10 +77,19 @@ class MainActivity : AppCompatActivity() {
         Thread(Runnable {
             var buildApk: File? = null
             try {
-                do {
-                    Thread.sleep(50)
-                    buildApk = asyncTask.get()
-                } while (buildApk == null)
+                buildApk = asyncTask.get() // blocked
+                if (Build.VERSION.SDK_INT >= 24) {
+                    val m = StrictMode::class.java.getMethod("disableDeathOnFileUriExposure")
+                    m.invoke(null)
+                }
+
+                clearProgress()
+
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.setDataAndType(Uri.fromFile(buildApk),
+                        "application/vnd.android.package-archive")
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
 
             } catch (e: InterruptedException) {
                 e.printStackTrace()
@@ -88,23 +97,6 @@ class MainActivity : AppCompatActivity() {
                 e.printStackTrace()
             }
 
-            if (Build.VERSION.SDK_INT >= 24) {
-                try {
-                    val m = StrictMode::class.java.getMethod("disableDeathOnFileUriExposure")
-                    m.invoke(null)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-
-            }
-
-            clearProgress()
-
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.setDataAndType(Uri.fromFile(buildApk),
-                    "application/vnd.android.package-archive")
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            startActivity(intent)
         }).start()
 
     }
