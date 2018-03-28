@@ -10,7 +10,7 @@ import com.willbe.builder.R
 
 class WebViewActivity : AppCompatActivity() {
 
-    private lateinit var webView: WebView ;
+    private lateinit var webView: WebView;
 
     init {
 
@@ -37,6 +37,13 @@ class WebViewActivity : AppCompatActivity() {
         webView!!.settings.javaScriptEnabled = true
         webView!!.settings.loadWithOverviewMode = true
         webView!!.settings.useWideViewPort = true
+        webView.settings.javaScriptEnabled = true;
+        webView.addJavascriptInterface(WebAppInterface(this), "Android");
+
+
+//        WebView.setWebContentsDebuggingEnabled(true);  // since sdk 19
+
+
         webView!!.setWebViewClient(object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
                 view.loadUrl(url)
